@@ -1,0 +1,6 @@
+[Input]
+SourcePath = C:\Users\amcmahon\Documents\TEST\UnispecScripts\TestData
+WP_Identifier = 000
+HeaderLines = 10
+
+[Output]
