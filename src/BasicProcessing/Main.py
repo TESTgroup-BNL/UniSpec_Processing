@@ -37,8 +37,8 @@ for idx, curfile in enumerate(sat_stops):
     print("Stop " + str(idx) + ":\t" + str(curfile[1]) + "\t" + str(curfile[2]))        
 print("\n" + str(len(sat_WP)) + " WPs and " + str(len(sat_stops)) + " stops saturated.")
 
-Spec.RemoveSaturated(WP_data, sat_WP)
-Spec.RemoveSaturated(Stop_data, sat_stops)
+#Spec.RemoveSaturated(WP_data, sat_WP)
+#Spec.RemoveSaturated(Stop_data, sat_stops)
 
 #Formatted as:
 #    var[file, WL/CH_B/CH_A] = [1 dim array of values]
@@ -50,10 +50,10 @@ avg_WP = Spec.AvgWPs(intdata_WPs)
 #Plot all WPs with average
 #Spec.plot_Averaging(intdata_WPs, avg_WP)
 
-R, A = Spec.Refl_Abs(intdata_Stops)
+R = Spec.Refl(intdata_Stops, avg_WP)
 
 #Plot reflectance and absorption for a particular stop
 #    plot_R_A(Refl data, Abs data, Stop #)
-Spec.plot_R_A(R,A,0)
+Spec.plot_R(R,20)
 
 Spec.WriteOutput(R, "c:\\UniSpec\\Test", "test_R.csv")

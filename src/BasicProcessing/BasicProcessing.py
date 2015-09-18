@@ -192,26 +192,18 @@ class UnispecProcessing:
         plt.show()
         return 0
     
-    def Refl_Abs(self,data):
-        refl = np.array(np.zeros((len(data),2,len(data[0, 0]))))
-        absor = np.array(np.zeros((len(data),2,len(data[0, 0]))))
-                            
-        for s_idx, stop in enumerate(data):
-            refl[s_idx, 0] = stop[0]
-            refl[s_idx, 1] = stop[1] / stop[2]
+    def Refl(self,Stop_data, WP_data):
+        refl = np.array(np.zeros((len(Stop_data),2,len(Stop_data[0, 0]))))
 
-            absor[s_idx, 0] = stop[0]
-            absor[s_idx, 1] = [-log10(r) for r in refl[s_idx, 1]]
+        for s_idx, stop in enumerate(Stop_data):
+            refl[s_idx, 0] = stop[0]
+            refl[s_idx, 1] = (stop[2] / WP_data[1]) * (stop[1] / stop[2])
         
-        return refl, absor
+        return refl
     
-    def plot_R_A(self,R_data,A_data,idx):
-        data = [R_data, A_data]
-        for p_idx, param in enumerate(['Reflectance', 'Absorption']):
-            axs = plt.subplot(2, 1, p_idx + 1)  
-            plt.title(param) 
-            axs.plot(data[p_idx][idx, 0], data[p_idx][idx, 1], '-')           
-            axs.plot(data[p_idx][idx, 0], data[p_idx][idx, 1], '-')   
+    def plot_R(self,R_data,idx):
+        plt.title('Reflectance') 
+        plt.plot(R_data[idx, 0], R_data[idx, 1], '-')           
         plt.show()
         return 0
     

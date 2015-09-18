@@ -1,5 +1,5 @@
 [Input]
-SourcePath = C:\Users\amcmahon\Documents\TEST\UnispecScripts\TestData
+SourcePath = C:\Users\amcmahon\Documents\TEST\UnispecScripts\TestData\2015
 WP_Identifier = 000
 HeaderLines = 10
 
