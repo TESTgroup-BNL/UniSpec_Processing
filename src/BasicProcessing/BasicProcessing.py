@@ -22,29 +22,56 @@ sys.path.append('C:\Python34\DLLs')
 sys.path.append('C:\Python34\Lib\site-packages')
 
 class consts:
+    """Class of constants to make understanding various lists/arrays simpler."""
+    
     header = 0
     data = 1
+    
     CH_B_WL = 0
     CH_B = 1
     CH_A_WL = 2
     CH_A = 3 
+    
     WL_Lims = 2
+    datetime = 1
+    
     CH_B_WL_Start = 0
     CH_B_WL_End = 1
     CH_A_WL_Start = 2
     CH_A_WL_End = 3
+    
+    date = 0
+    time = 1
+    
+    int_WL = 0
+    int_CH_B = 1
+    int_CH_A = 2
+    
 
 class UnispecProcessing:
+    """Class for Unispec data processing"""
+    
     SourcePath = ""
+    OutputPath = ""
     WP_identifier = ""
     HeaderLines = ""
-    WPs = [""] # * 3
-    Stops = [""] # * 200
+    #: Array of white plate files indexed as *[Run #][WP #]* 
+    WPs = [[]] # * 3
+    #: Array of stop files indexed as *[Run #][Stop #]* 
+    Stops = [[]] # * 200 
     WP_count = 0
     stop_count = 0
+    run_count = 0
     
   
     def __init__(self, config_file):
+        """Initializes the class.  Reads input/output parameters from configuration file.
+        
+        :param config_file: Text file containing input/output configuration
+        :type config_file: String
+        
+        """
+        
         config = configparser.ConfigParser()
         config.read(config_file)
         
@@ -53,24 +80,58 @@ class UnispecProcessing:
         self.SourcePath = InputParams['SourcePath']
         self.WP_identifier = InputParams['WP_Identifier']
         self.HeaderLines = int(InputParams['HeaderLines'])
+        OutputParams = ""
+        OutputParams = config['Output']
+        self.OutputPath = OutputParams['OutputPath'] 
+
 
     def GetFileLists(self):
-        for file in os.listdir(self.SourcePath):
+        """Reads input directory specified in config file and populates class arrays :data:`~BasicProcessing.UnispecProcessing.WPs` and :data:`~BasicProcessing.UnispecProcessing.Stops` with file paths/names that are to be processed.
+        
+        File sets are split based on where white plates are identified date/time (assuming they are included in the filename) and .
+        
+        :return: # of runs, # of white plates, # of stops
+        :rtype: Integer, Integer, Integer
+
+        """
+         
+        WP_break = False
+        run = 0
+        flist = os.listdir(self.SourcePath)
+        flist.sort()
+        for file in flist:
             if file.endswith(".spu"):
                 if file.endswith(self.WP_identifier + ".spu"):
-                    self.WPs[-1] = file
-                    self.WPs.append("") 
+                    if WP_break:
+                        run += 1
+                        self.WPs.append([])
+                        self.Stops.append([])
+                        WP_break = False
+                    self.WPs[run].append(file)
                 else:
-                    self.Stops[-1] = file                    
-                    self.Stops.append("")                
+                    WP_break = True                        
+                    self.Stops[run].append(file)                    
 
-        self.WP_count = len(self.WPs) - 1
-        self.stop_count = len(self.Stops) - 1
-        print("Found " + str(self.WP_count) + " white plates and " + str(self.stop_count) + " stops in dir " + self.SourcePath + ".\n")
-        return self.WP_count, self.stop_count
+        self.WP_count = [len(self.WPs[i]) - 1 for i in range(0, run+1)]
+        self.stop_count = [len(self.Stops[i]) - 1 for i in range(0, run+1)]
+        print("Found " + str(run) + " runs in " + self.SourcePath + ".\n\tWPs\tStops\n")
+        for r in range(0, run+1):
+            print(str(r) + ":\t" + str(self.WP_count[r]) + "\t"+ str(self.stop_count[r]))
+        self.run_count = run +1
+        return self.run_count, self.WP_count, self.stop_count
             
 
     def ReadFiles(self, flist, headerlen):
+        """Reads Unispec output files into a list, separating header and spectrum data for each file.
+        
+        :param flist: List of files to read (as returned from :func:`~BasicProcessing.UnispecProcessing.GetFileLists`)
+        :type flist: Nested list of Strings
+        :param headerlen: Constant defining how many lines the header consists of
+        :type headerlen: Integer
+        :returns: List of data indexed as [file index][:const:`~BasicProcessing.consts.header` / :const:`~BasicProcessing.consts.data`][row index][:const:`~BasicProcessing.consts.CH_B_WL` / :const:`~BasicProcessing.consts.CH_B` / :const:`~BasicProcessing.consts.CH_A_WL` / :const:`~BasicProcessing.consts.CH_A`]
+        :rtype: Nested list of Strings
+        
+        """
 
         outdata = [[[None],[None]] for item in range(0, len(flist)-1)]
         
@@ -88,15 +149,26 @@ class UnispecProcessing:
             sf.close()
         return outdata
 
-            
-    def ReadHeader(self, sff):
+        """            
+        def ReadHeader(self, sff):
         header = [None] * self.HeaderLines
         for i in range(0,self.HeaderLines - 1):
             header[i] = sff.readline()
         return header
+        """
     
-    #Returns an array indexed as: [file #][CH_B/CH_A][WL]
+    
     def CheckSaturation_WL(self, data):
+        """
+        Returns a list of wavelengths with saturated values.
+        
+        :param data: List of full run data (as returned from :func:`~BasicProcessing.UnispecProcessing.ReadFiles`)
+        :type data: Nested list of Strings
+        :returns: List wavelengths indexed as *[file index][Ch B(0) / Ch A(1)]*
+        :rtype: Nested list of Floats
+        
+        """
+        
         sat = [[[None], [None]] for item in range(0, len(data))]
         for i in range(0,len(data)):     
             for k, val in enumerate([row[consts.CH_B] for row in [d[consts.data] for d in data][i]]):
@@ -109,8 +181,18 @@ class UnispecProcessing:
             del(sat[i][1][0])
         return sat
  
-     #Returns an array indexed as: [idx][file #/CH_B/CH_A]
+ 
     def CheckSaturation(self, data):
+        """
+        Returns a list with a count of saturated values per channel for each file.
+        
+        :param data: List of full run data (as returned from :func:`~BasicProcessing.UnispecProcessing.ReadFiles`)
+        :type data: Nested list of Strings
+        :returns: List of Arrays *[file index, Ch B, Ch A]*
+        :rtype: [Integer, Integer, Integer]
+        
+        """
+        
         sat = [None]
         for i in range(0,len(data)):  
             satcount_A = 0   
@@ -127,9 +209,20 @@ class UnispecProcessing:
     
                 
     def RemoveSaturated(self, orig_data, sat_data):
+        """
+        Removes data from files indexed in **sat_data** from **orig_data**.
+        
+        :param orig_data: List of full run data (as returned from :func:`~BasicProcessing.UnispecProcessing.ReadFiles`)
+        :type orig_data: Nested list of Strings
+        :param sat_data: List of Arrays *[file index, Ch B, Ch A]*
+        :returns: List of reduced run data (maintains list format)
+        :rtype: Nested list of Strings
+        
+        """   
         for idx, item in enumerate(reversed(sat_data)):
             del(orig_data[item[0]])
-   
+
+    """   
     def flatten(self, l, ltypes=(list, tuple)):
         ltype = type(l)
         l = list(l)
@@ -143,9 +236,22 @@ class UnispecProcessing:
                 else:
                     l[i:i + 1] = l[i]
             i += 1
-        return ltype(l)             
+        return ltype(l)
+    """    
     
     def Interp(self,data):
+        """
+        Interpolates data to 1 nm.
+        
+        Only includes wavelengths where data is present for both channels.
+        
+        :param data: List of run data (as returned from :func:`~BasicProcessing.UnispecProcessing.ReadFiles`)
+        :type data: Nested list of Strings
+        :returns: Array of interpolated data indexed as [file #, :data:`~BasicProcessing.consts.int_WL` / :data:`~BasicProcessing.consts.int_CH_B` / :data:`~BasicProcessing.consts.int_CH_A`]
+        :rtype: [file, WL/Ch B/Ch A] Array of Floats
+        
+        """
+        
         newdata = np.array([])
         limlist = [0, 0, 0, 0]
         for f_idx, file in enumerate(data):   
@@ -175,14 +281,53 @@ class UnispecProcessing:
         
         return newdata
     
+    
+    def GetDateTime(self, file):
+        """
+        Gets the time and date from a specified file.
+        
+        :param file: List of data from file (from full run data with file index specified)
+        :type file: Nested list of data
+        :returns: Array containing date and time indexed as [:const:`~BasicProcessing.consts.date` / :const:`~BasicProcessing.consts.time`]
+        :rtype: [Date/Time] String
+        
+        """
+        
+        dt = file[consts.header][consts.datetime].replace('"Time:    ','').replace('"\n','').split('  ')
+        return dt
+    
+    
     def AvgWPs(self,data):
+        """
+        Averages values for each channel and file in **data**.
+        
+        :param data: Array of interpolated data (as returned from :func:`~BasicProcessing.UnispecProcessing.Interp`)
+        :type file: Array of Floats indexed as [File, :data:`~BasicProcessing.consts.int_WL` / :data:`~BasicProcessing.consts.int_CH_B` / :data:`~BasicProcessing.consts.int_CH_A`]
+        :returns: Array of averaged values for each file
+        :rtype: Array of Floats indexed as [:data:`~BasicProcessing.consts.int_WL` / :data:`~BasicProcessing.consts.int_CH_B` / :data:`~BasicProcessing.consts.int_CH_A`]
+        
+        """
         newdata = np.array(np.zeros_like(data[0]))
         newdata[0] = data[0,0]
         newdata[1] = np.average(data[:,1,:], axis=0)
         newdata[2] = np.average(data[:,2,:], axis=0)
         return newdata
     
+    
     def plot_Averaging(self,orig_data,avg_data):
+        """
+        Creates a plot comparing a collection of data with its average.
+        
+        Useful for checking white plate averaging.
+        
+        :param orig_data: Array of interpolated data (as returned from :func:`~BasicProcessing.UnispecProcessing.Interp`)
+        :type orig_data: Array of Floats indexed as [File, :data:`~BasicProcessing.consts.int_WL` / :data:`~BasicProcessing.consts.int_CH_B` / :data:`~BasicProcessing.consts.int_CH_A`]
+        :param avg_data: Array of averaged values for each file
+        :type avg_data: Array of Floats indexed as [:data:`~BasicProcessing.consts.int_WL` / :data:`~BasicProcessing.consts.int_CH_B` / :data:`~BasicProcessing.consts.int_CH_A`]
+        :returns: 0
+        :rtype: Integer
+        
+        """
         for chan_idx, chan in enumerate(['Chan B', 'Chan A']):
             axs = plt.subplot(1, 2, chan_idx + 1)  
             plt.title(chan) 
@@ -192,22 +337,63 @@ class UnispecProcessing:
         plt.show()
         return 0
     
+    
     def Refl(self,Stop_data, WP_data):
+        """
+        Calculates reflectance for an array of data.
+        
+        :param Stop_data: Stop data to be used 
+        :type Stop_data: Array of Floats indexed as [File, :data:`~BasicProcessing.consts.int_WL` / :data:`~BasicProcessing.consts.int_CH_B` / :data:`~BasicProcessing.consts.int_CH_A`]
+        :param WP_data: White plate data to be used (as returned from :func:`~BasicProcessing.UnispecProcessing.AvgWPs`)
+        :type WP_data: Array of Floats indexed as [:data:`~BasicProcessing.consts.int_WL` / :data:`~BasicProcessing.consts.int_CH_B` / :data:`~BasicProcessing.consts.int_CH_A`]
+        :returns: Array of reflectance values for each file
+        :rtype: [File, WL] Float
+        
+        """
+        
         refl = np.array(np.zeros((len(Stop_data),2,len(Stop_data[0, 0]))))
 
         for s_idx, stop in enumerate(Stop_data):
             refl[s_idx, 0] = stop[0]
+            #Reflec = (I_up / I_WP) * (I_trg / I_up)
             refl[s_idx, 1] = (stop[2] / WP_data[1]) * (stop[1] / stop[2])
         
         return refl
     
+    
     def plot_R(self,R_data,idx):
+        """
+        Creates a plot from reflectance data.
+        
+        :param R_data: Array of reflectance data (as returned from :func:`~BasicProcessing.UnispecProcessing.Refl`)
+        :type R_data: Array of Floats indexed as [File, :data:`~BasicProcessing.consts.int_WL` / :data:`~BasicProcessing.consts.int_CH_B` / :data:`~BasicProcessing.consts.int_CH_A`]
+        :param idx: Array of averaged values for each file
+        :type idx: Array of Floats indexed as [:data:`~BasicProcessing.consts.int_WL` / :data:`~BasicProcessing.consts.int_CH_B` / :data:`~BasicProcessing.consts.int_CH_A`]
+        :returns: 0
+        :rtype: Integer
+        
+        """
         plt.title('Reflectance') 
         plt.plot(R_data[idx, 0], R_data[idx, 1], '-')           
         plt.show()
         return 0
     
     def WriteOutput(self,data,path,filename):
+        """
+        Creates a CSV file of the reflectance data in *data*.
+        
+        A file should be generated for each set of stops.  Each row then represents a stop and each column corresponds with a wavelength.
+        
+        :param data: Array of reflectance data (as returned from :func:`~BasicProcessing.UnispecProcessing.Refl`)
+        :type data: Array of Floats indexed as [File, :data:`~BasicProcessing.consts.int_WL` / :data:`~BasicProcessing.consts.int_CH_B` / :data:`~BasicProcessing.consts.int_CH_A`]
+        :param path: Directory to save the generated file in
+        :type path: String
+        :param filename: Filename to use for the generated file
+        :type filename: String
+        :returns: 0
+        :rtype: Integer
+        
+        """
         
         if (os.path.isfile(path + '/' + filename) == True) :
             n = 0

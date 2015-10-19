@@ -4,3 +4,4 @@ WP_Identifier = 000
 HeaderLines = 10
 
 [Output]
+OutputPath = C:\\UniSpec\\Test
