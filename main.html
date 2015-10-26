@@ -1,0 +1,227 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>2. Main Function Operation and Use &mdash; Unispec Processing 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="Unispec Processing 1.0 documentation" href="index.html" />
+    <link rel="next" title="3. BasicProcessing Functions" href="functions.html" />
+    <link rel="prev" title="1. Introduction" href="intro.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="functions.html" title="3. BasicProcessing Functions"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="intro.html" title="1. Introduction"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Unispec Processing 1.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-Main">
+<span id="main-function-operation-and-use"></span><h1>2. Main Function Operation and Use<a class="headerlink" href="#module-Main" title="Permalink to this headline">¶</a></h1>
+<p>Created on Aug 4, 2015</p>
+<p>&#64;author: amcmahon</p>
+<dl class="function">
+<dt id="Main.main">
+<code class="descclassname">Main.</code><code class="descname">main</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/Main.html#main"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Main.main" title="Permalink to this definition">¶</a></dt>
+<dd><p>Main function for generating CSV files from a directory of Unispec data.</p>
+<p>Input/Output paths, white plate identifier string and header size should be specified in &#8220;config.txt&#8221;.</p>
+<p>Outputs one CSV file per tram run, where each row represets a stop and columns are wavelengths interpolated to 1nm.</p>
+</dd></dl>
+
+<div class="section" id="operation">
+<h2>2.1. Operation<a class="headerlink" href="#operation" title="Permalink to this headline">¶</a></h2>
+<p>This main function reads in the configuration options, sets up some lists to pass information between functions and iterates through each run as a group.</p>
+<p>First, the object <code class="xref py py-obj docutils literal"><span class="pre">Spec</span></code> is created from the <a class="reference internal" href="functions.html#BasicProcessing.UnispecProcessing" title="BasicProcessing.UnispecProcessing"><code class="xref py py-class docutils literal"><span class="pre">UnispecProcessing</span></code></a> class.  The Init function for the class also opens the config file specified and loads the values into class level variables.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="o">&gt;</span><span class="n">path</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">realpath</span><span class="p">(</span><span class="s">&#39;.&#39;</span><span class="p">))</span>
+<span class="o">&gt;</span><span class="n">Spec</span> <span class="o">=</span> <span class="n">UnispecProcessing</span><span class="p">(</span><span class="n">path</span> <span class="o">+</span> <span class="s">r&#39;\config.txt&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Then, file lists for runs, white plates and stops are generated.  These lists are also stored within the class.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="o">&gt;</span><span class="n">run_count</span><span class="p">,</span> <span class="n">WP_count</span><span class="p">,</span> <span class="n">stop_count</span> <span class="o">=</span> <span class="n">Spec</span><span class="o">.</span><span class="n">GetFileLists</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>For each run (as determined by the poisitions of white plates between stops in chronological order), arrays are created for the &#8220;raw&#8221; imported data and saturation counts.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="o">&gt;</span><span class="k">for</span> <span class="n">run</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">run_count</span><span class="p">):</span>
+<span class="o">&gt;</span>
+    <span class="o">&gt;</span>       <span class="c">#There must be at least one white plate and one stop for a run to produce any useful data, otherwise skip it.</span>
+<span class="o">&gt;</span>    <span class="k">if</span> <span class="p">(</span><span class="n">WP_count</span><span class="p">[</span><span class="n">run</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">stop_count</span><span class="p">[</span><span class="n">run</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
+<span class="o">&gt;</span>        <span class="k">continue</span>
+<span class="o">&gt;</span>
+<span class="o">&gt;</span>    <span class="n">WP_data</span> <span class="o">=</span> <span class="p">[[[</span><span class="bp">None</span><span class="p">],</span> <span class="p">[</span><span class="bp">None</span><span class="p">]]</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">WP_count</span><span class="p">[</span><span class="n">run</span><span class="p">])]</span>
+<span class="o">&gt;</span>    <span class="n">Stop_data</span> <span class="o">=</span> <span class="p">[[[</span><span class="bp">None</span><span class="p">],</span> <span class="p">[</span><span class="bp">None</span><span class="p">]]</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">stop_count</span><span class="p">[</span><span class="n">run</span><span class="p">])]</span>
+<span class="o">&gt;</span>    <span class="n">sat</span> <span class="o">=</span> <span class="p">[[</span><span class="bp">None</span><span class="p">],</span> <span class="p">[</span><span class="bp">None</span><span class="p">]]</span>
+</pre></div>
+</div>
+<p>These arrays are populated by <a class="reference internal" href="functions.html#BasicProcessing.UnispecProcessing.ReadFiles" title="BasicProcessing.UnispecProcessing.ReadFiles"><code class="xref py py-func docutils literal"><span class="pre">ReadFiles()</span></code></a> with the white plates and stops as two seperate groups.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="o">&gt;</span>    <span class="n">WP_data</span> <span class="o">=</span> <span class="n">Spec</span><span class="o">.</span><span class="n">ReadFiles</span><span class="p">(</span><span class="n">Spec</span><span class="o">.</span><span class="n">WPs</span><span class="p">[</span><span class="n">run</span><span class="p">],</span> <span class="n">Spec</span><span class="o">.</span><span class="n">HeaderLines</span><span class="p">)</span>
+<span class="o">&gt;</span>    <span class="n">Stop_data</span> <span class="o">=</span> <span class="n">Spec</span><span class="o">.</span><span class="n">ReadFiles</span><span class="p">(</span><span class="n">Spec</span><span class="o">.</span><span class="n">Stops</span><span class="p">[</span><span class="n">run</span><span class="p">],</span> <span class="n">Spec</span><span class="o">.</span><span class="n">HeaderLines</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Next, both data sets are checked for saturated values and a count of these are returned.  These counts could be used as a condition for whether or not to keep data from a specific stop/run.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="o">&gt;</span>    <span class="n">sat_WP</span> <span class="o">=</span> <span class="n">Spec</span><span class="o">.</span><span class="n">CheckSaturation</span><span class="p">(</span><span class="n">WP_data</span><span class="p">)</span>
+<span class="o">&gt;</span>    <span class="n">sat_stops</span> <span class="o">=</span> <span class="n">Spec</span><span class="o">.</span><span class="n">CheckSaturation</span><span class="p">(</span><span class="n">Stop_data</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The counts for each white plate/stop are also printed as a diagnostic.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="o">&gt;</span>    <span class="k">print</span><span class="p">(</span><span class="s">&quot;Saturated Measurement Count</span><span class="se">\n\t\t</span><span class="s">Ch_B</span><span class="se">\t</span><span class="s">Ch_A&quot;</span><span class="p">)</span>
+<span class="o">&gt;</span>    <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">curfile</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">sat_WP</span><span class="p">):</span>
+<span class="o">&gt;</span>        <span class="k">print</span><span class="p">(</span><span class="s">&quot;WP &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot;:</span><span class="se">\t\t</span><span class="s">&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">curfile</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">+</span> <span class="s">&quot;</span><span class="se">\t</span><span class="s">&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">curfile</span><span class="p">[</span><span class="mi">2</span><span class="p">]))</span>
+<span class="o">&gt;</span>    <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">curfile</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">sat_stops</span><span class="p">):</span>
+<span class="o">&gt;</span>        <span class="k">print</span><span class="p">(</span><span class="s">&quot;Stop &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot;:</span><span class="se">\t\t</span><span class="s">&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">curfile</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">+</span> <span class="s">&quot;</span><span class="se">\t</span><span class="s">&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">curfile</span><span class="p">[</span><span class="mi">2</span><span class="p">]))</span>
+<span class="o">&gt;</span>    <span class="k">print</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">sat_WP</span><span class="p">))</span> <span class="o">+</span> <span class="s">&quot; WPs and &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">sat_stops</span><span class="p">))</span> <span class="o">+</span> <span class="s">&quot; stops saturated.&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Optionally, saturated stops are removed.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="o">&gt;</span>    <span class="c">#Spec.RemoveSaturated(WP_data, sat_WP)</span>
+<span class="o">&gt;</span>    <span class="c">#Spec.RemoveSaturated(Stop_data, sat_stops)</span>
+</pre></div>
+</div>
+<p>The &#8220;raw&#8221; data is then interpolated to 1 1nm.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="o">&gt;</span>    <span class="n">intdata_WPs</span> <span class="o">=</span> <span class="n">Spec</span><span class="o">.</span><span class="n">Interp</span><span class="p">(</span><span class="n">WP_data</span><span class="p">)</span>
+<span class="o">&gt;</span>    <span class="n">intdata_Stops</span> <span class="o">=</span> <span class="n">Spec</span><span class="o">.</span><span class="n">Interp</span><span class="p">(</span><span class="n">Stop_data</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>All of the white plate values are averaged to a single data set.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="o">&gt;</span>    <span class="n">avg_WP</span> <span class="o">=</span> <span class="n">Spec</span><span class="o">.</span><span class="n">AvgWPs</span><span class="p">(</span><span class="n">intdata_WPs</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Optionally, the white plate average can be plotted against all of the individual measurments as a diagnostic.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="o">&gt;</span>    <span class="c">#Plot all WPs with average</span>
+<span class="o">&gt;</span>    <span class="c">#Spec.plot_Averaging(intdata_WPs, avg_WP)</span>
+</pre></div>
+</div>
+<p>Next, the reflectance values are calculated.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="o">&gt;</span>    <span class="n">R</span> <span class="o">=</span> <span class="n">Spec</span><span class="o">.</span><span class="n">Refl</span><span class="p">(</span><span class="n">intdata_Stops</span><span class="p">,</span> <span class="n">avg_WP</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>These can also be plotted for a particular stop as a diasgnostic.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="o">&gt;</span>    <span class="c">#Spec.plot_R(R,20)</span>
+</pre></div>
+</div>
+<p>Finally, the CSV output is generated.  The date and tiem from the first white plate of a given run are used in the filename as a reference.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="o">&gt;</span>    <span class="n">dt</span> <span class="o">=</span> <span class="n">Spec</span><span class="o">.</span><span class="n">GetDateTime</span><span class="p">(</span><span class="n">WP_data</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="o">&gt;</span>    <span class="n">Spec</span><span class="o">.</span><span class="n">WriteOutput</span><span class="p">(</span><span class="n">R</span><span class="p">,</span> <span class="s">&quot;c:</span><span class="se">\\</span><span class="s">UniSpec</span><span class="se">\\</span><span class="s">Test&quot;</span><span class="p">,</span> <span class="s">&quot;test_R_&quot;</span> <span class="o">+</span> <span class="n">dt</span><span class="p">[</span><span class="n">consts</span><span class="o">.</span><span class="n">date</span><span class="p">]</span> <span class="o">+</span> <span class="s">&quot;__&quot;</span> <span class="o">+</span> <span class="n">dt</span><span class="p">[</span><span class="n">consts</span><span class="o">.</span><span class="n">time</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&#39;:&#39;</span><span class="p">,</span><span class="s">&#39;_&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot;.csv&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="configuration-file">
+<h2>2.2. Configuration File<a class="headerlink" href="#configuration-file" title="Permalink to this headline">¶</a></h2>
+<p>The configuration file is seperated into an Input and an Output section to help organize parameters, especially as future options are potentially added.</p>
+<div class="highlight-text"><div class="highlight"><pre>[Input]
+SourcePath = C:\Users\amcmahon\Documents\TEST\UnispecScripts\TestData\2015
+WP_Identifier = 000
+HeaderLines = 10
+
+[Output]
+OutputPath = C:\\UniSpec\\Test
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">2. Main Function Operation and Use</a><ul>
+<li><a class="reference internal" href="#operation">2.1. Operation</a></li>
+<li><a class="reference internal" href="#configuration-file">2.2. Configuration File</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="intro.html"
+                        title="previous chapter">1. Introduction</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="functions.html"
+                        title="next chapter">3. BasicProcessing Functions</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/main.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="functions.html" title="3. BasicProcessing Functions"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="intro.html" title="1. Introduction"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Unispec Processing 1.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, BNL TEST.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
+  </body>
+</html>

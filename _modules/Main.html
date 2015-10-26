@@ -1,0 +1,173 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Main &mdash; Unispec Processing 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="Unispec Processing 1.0 documentation" href="../index.html" />
+    <link rel="up" title="Module code" href="index.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Unispec Processing 1.0 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for Main</h1><div class="highlight"><pre>
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">Created on Aug 4, 2015</span>
+
+<span class="sd">@author: amcmahon</span>
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="kn">from</span> <span class="nn">BasicProcessing</span> <span class="kn">import</span> <span class="n">UnispecProcessing</span>
+<span class="kn">from</span> <span class="nn">BasicProcessing</span> <span class="kn">import</span> <span class="n">consts</span>
+<span class="kn">import</span> <span class="nn">os.path</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+
+
+<div class="viewcode-block" id="main"><a class="viewcode-back" href="../main.html#Main.main">[docs]</a><span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Main function for generating CSV files from a directory of Unispec data.</span>
+<span class="sd">    </span>
+<span class="sd">    Input/Output paths, white plate identifier string and header size should be specified in &quot;config.txt&quot;.</span>
+<span class="sd">    </span>
+<span class="sd">    Outputs one CSV file per tram run, where each row represets a stop and columns are wavelengths interpolated to 1nm.</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">path</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">realpath</span><span class="p">(</span><span class="s">&#39;.&#39;</span><span class="p">))</span>
+    <span class="n">Spec</span> <span class="o">=</span> <span class="n">UnispecProcessing</span><span class="p">(</span><span class="n">path</span> <span class="o">+</span> <span class="s">r&#39;\config.txt&#39;</span><span class="p">)</span>
+    
+    <span class="n">run_count</span><span class="p">,</span> <span class="n">WP_count</span><span class="p">,</span> <span class="n">stop_count</span> <span class="o">=</span> <span class="n">Spec</span><span class="o">.</span><span class="n">GetFileLists</span><span class="p">()</span>
+    
+    <span class="k">for</span> <span class="n">run</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">run_count</span><span class="p">):</span>
+        
+        <span class="k">if</span> <span class="p">(</span><span class="n">WP_count</span><span class="p">[</span><span class="n">run</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">stop_count</span><span class="p">[</span><span class="n">run</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
+            <span class="k">continue</span>
+    
+        <span class="n">WP_data</span> <span class="o">=</span> <span class="p">[[[</span><span class="bp">None</span><span class="p">],</span> <span class="p">[</span><span class="bp">None</span><span class="p">]]</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">WP_count</span><span class="p">[</span><span class="n">run</span><span class="p">])]</span>
+        <span class="n">Stop_data</span> <span class="o">=</span> <span class="p">[[[</span><span class="bp">None</span><span class="p">],</span> <span class="p">[</span><span class="bp">None</span><span class="p">]]</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">stop_count</span><span class="p">[</span><span class="n">run</span><span class="p">])]</span>
+        <span class="n">sat</span> <span class="o">=</span> <span class="p">[[</span><span class="bp">None</span><span class="p">],</span> <span class="p">[</span><span class="bp">None</span><span class="p">]]</span>
+        
+        
+        <span class="c">#When getting data from these, they are formatted as:</span>
+        <span class="c">#    var[file index][header/data][row index][CH_B_WL/CH_B/CH_A_WL/CH_A]</span>
+        <span class="n">WP_data</span> <span class="o">=</span> <span class="n">Spec</span><span class="o">.</span><span class="n">ReadFiles</span><span class="p">(</span><span class="n">Spec</span><span class="o">.</span><span class="n">WPs</span><span class="p">[</span><span class="n">run</span><span class="p">],</span> <span class="n">Spec</span><span class="o">.</span><span class="n">HeaderLines</span><span class="p">)</span>
+        <span class="n">Stop_data</span> <span class="o">=</span> <span class="n">Spec</span><span class="o">.</span><span class="n">ReadFiles</span><span class="p">(</span><span class="n">Spec</span><span class="o">.</span><span class="n">Stops</span><span class="p">[</span><span class="n">run</span><span class="p">],</span> <span class="n">Spec</span><span class="o">.</span><span class="n">HeaderLines</span><span class="p">)</span>
+        
+        <span class="c">#Formatted as:</span>
+        <span class="c">#    var[file index][CH_B/CH_A][WL]</span>
+        <span class="c">#    value of var is the WL saturation occurred at</span>
+        <span class="n">sat_WP</span> <span class="o">=</span> <span class="n">Spec</span><span class="o">.</span><span class="n">CheckSaturation</span><span class="p">(</span><span class="n">WP_data</span><span class="p">)</span>
+        <span class="n">sat_stops</span> <span class="o">=</span> <span class="n">Spec</span><span class="o">.</span><span class="n">CheckSaturation</span><span class="p">(</span><span class="n">Stop_data</span><span class="p">)</span>
+        
+        <span class="k">print</span><span class="p">(</span><span class="s">&quot;Saturated Measurement Count</span><span class="se">\n\t\t</span><span class="s">Ch_B</span><span class="se">\t</span><span class="s">Ch_A&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">curfile</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">sat_WP</span><span class="p">):</span>
+            <span class="k">print</span><span class="p">(</span><span class="s">&quot;WP &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot;:</span><span class="se">\t\t</span><span class="s">&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">curfile</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">+</span> <span class="s">&quot;</span><span class="se">\t</span><span class="s">&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">curfile</span><span class="p">[</span><span class="mi">2</span><span class="p">]))</span> 
+        <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">curfile</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">sat_stops</span><span class="p">):</span>
+            <span class="k">print</span><span class="p">(</span><span class="s">&quot;Stop &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot;:</span><span class="se">\t\t</span><span class="s">&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">curfile</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">+</span> <span class="s">&quot;</span><span class="se">\t</span><span class="s">&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">curfile</span><span class="p">[</span><span class="mi">2</span><span class="p">]))</span>        
+        <span class="k">print</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">sat_WP</span><span class="p">))</span> <span class="o">+</span> <span class="s">&quot; WPs and &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">sat_stops</span><span class="p">))</span> <span class="o">+</span> <span class="s">&quot; stops saturated.&quot;</span><span class="p">)</span>
+        
+        <span class="c">#Spec.RemoveSaturated(WP_data, sat_WP)</span>
+        <span class="c">#Spec.RemoveSaturated(Stop_data, sat_stops)</span>
+        
+        <span class="c">#Formatted as:</span>
+        <span class="c">#    var[file, WL/CH_B/CH_A] = [1 dim array of values]</span>
+        <span class="n">intdata_WPs</span> <span class="o">=</span> <span class="n">Spec</span><span class="o">.</span><span class="n">Interp</span><span class="p">(</span><span class="n">WP_data</span><span class="p">)</span>
+        <span class="n">intdata_Stops</span> <span class="o">=</span> <span class="n">Spec</span><span class="o">.</span><span class="n">Interp</span><span class="p">(</span><span class="n">Stop_data</span><span class="p">)</span>
+        
+        <span class="n">avg_WP</span> <span class="o">=</span> <span class="n">Spec</span><span class="o">.</span><span class="n">AvgWPs</span><span class="p">(</span><span class="n">intdata_WPs</span><span class="p">)</span>
+        
+        <span class="c">#Plot all WPs with average</span>
+        <span class="c">#Spec.plot_Averaging(intdata_WPs, avg_WP)</span>
+        
+        <span class="n">R</span> <span class="o">=</span> <span class="n">Spec</span><span class="o">.</span><span class="n">Refl</span><span class="p">(</span><span class="n">intdata_Stops</span><span class="p">,</span> <span class="n">avg_WP</span><span class="p">)</span>
+        
+        <span class="c">#Plot reflectance for a particular stop</span>
+        <span class="c">#    plot_R_A(Refl data, Stop #)</span>
+        <span class="c">#Spec.plot_R(R,20)</span>
+        
+        <span class="n">dt</span> <span class="o">=</span> <span class="n">Spec</span><span class="o">.</span><span class="n">GetDateTime</span><span class="p">(</span><span class="n">WP_data</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        
+        <span class="n">Spec</span><span class="o">.</span><span class="n">WriteOutput</span><span class="p">(</span><span class="n">R</span><span class="p">,</span> <span class="n">Spec</span><span class="o">.</span><span class="n">OutputPath</span><span class="p">,</span> <span class="s">&quot;test_R_&quot;</span> <span class="o">+</span> <span class="n">dt</span><span class="p">[</span><span class="n">consts</span><span class="o">.</span><span class="n">date</span><span class="p">]</span> <span class="o">+</span> <span class="s">&quot;__&quot;</span> <span class="o">+</span> <span class="n">dt</span><span class="p">[</span><span class="n">consts</span><span class="o">.</span><span class="n">time</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&#39;:&#39;</span><span class="p">,</span><span class="s">&#39;_&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot;.csv&quot;</span><span class="p">)</span>
+        
+        </div>
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Unispec Processing 1.0 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, BNL TEST.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
+  </body>
+</html>
