@@ -1,7 +1,8 @@
 [Input]
-SourcePath = C:\Users\amcmahon\Documents\TEST\UnispecScripts\TestData\2015
+SourcePath = D:\Users\Andrew\Documents\BNL\TEST\Unispec_Processing\example_data\2015
 WP_Identifier = 000
 HeaderLines = 10
 
 [Output]
-OutputPath = C:\\UniSpec\\Test
+OutputPath = D:\Users\Andrew\Documents\BNL\TEST\Unispec_Processing\example_results\2015
+OutputPrefix = example_

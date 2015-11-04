@@ -53,6 +53,7 @@ class UnispecProcessing:
     
     SourcePath = ""
     OutputPath = ""
+    OutputPrefix = ""
     WP_identifier = ""
     HeaderLines = ""
     #: Array of white plate files indexed as *[Run #][WP #]* 
@@ -83,6 +84,7 @@ class UnispecProcessing:
         OutputParams = ""
         OutputParams = config['Output']
         self.OutputPath = OutputParams['OutputPath'] 
+        self.OutputPrefix = OutputParams['OutputPrefix']
 
 
     def GetFileLists(self):

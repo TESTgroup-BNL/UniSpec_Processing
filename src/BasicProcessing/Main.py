@@ -73,7 +73,7 @@ def main():
         
         dt = Spec.GetDateTime(WP_data[0])
         
-        Spec.WriteOutput(R, Spec.OutputPath, "test_R_" + dt[consts.date] + "__" + dt[consts.time].replace(':','_') + ".csv")
+        Spec.WriteOutput(R, Spec.OutputPath, Spec.OutputPrefix + dt[consts.date] + "__" + dt[consts.time].replace(':','_') + ".csv")
         
         
 if __name__ == "__main__":
