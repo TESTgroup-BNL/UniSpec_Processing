@@ -17,9 +17,10 @@ Requirements
 ============
 
 This has been tested on Python 3.4 and requires the following packages:
-   - 'numpy <http://sourceforge.net/projects/numpy/files/NumPy/>'_
-   - 'scipy <http://sourceforge.net/projects/scipy/files/scipy/>'_
-   - 'matplotlib <http://matplotlib.org/downloads.html>'_ (only needed for plotting)
+
+- 'numpy <http://sourceforge.net/projects/numpy/files/NumPy/>'_
+- 'scipy <http://sourceforge.net/projects/scipy/files/scipy/>'_
+- 'matplotlib <http://matplotlib.org/downloads.html>'_ (only needed for plotting)
 
 
 Main Function Use and Operation
@@ -32,7 +33,7 @@ Use
 To process a set of data using Main.py, the configuration file "Config.txt" should be updated with the appropriate path and filename information and be saved in the same directory as BasicProcessing.py and Main.py.  Main.py can then be called directly with no arguments.  (From a command prompt "python main.py".)
 
 
----------------	
+---------
 Operation
 ---------
 The main function reads in the configuration options, sets up some lists to pass information between functions and iterates through each run as a group.
