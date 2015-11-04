@@ -6,11 +6,12 @@ The purpose of this package is to provide an automated system for generating use
 There are also project files here for Eclipse (with PyDev) which can be useful for debugging.
 
 There are two main components to the package:
-	BasicProcessing.py
-      Library with all data processing functions
+
+BasicProcessing.py
+   Library with all data processing functions
       
-	Main.py
-      Example script for processing data (described in detailed below)
+Main.py
+   Example script for processing data (described in detailed below)
 
 
 Requirements
@@ -18,9 +19,12 @@ Requirements
 
 This has been tested on Python 3.4 and requires the following packages:
 
-- 'numpy <http://sourceforge.net/projects/numpy/files/NumPy/>'_
-- 'scipy <http://sourceforge.net/projects/scipy/files/scipy/>'_
-- 'matplotlib <http://matplotlib.org/downloads.html>'_ (only needed for plotting)
+- 'numpy
+<http://sourceforge.net/projects/numpy/files/NumPy/>'_
+- 'scipy
+<http://sourceforge.net/projects/scipy/files/scipy/>'_
+- 'matplotlib
+<http://matplotlib.org/downloads.html>'_ (only needed for plotting)
 
 
 Main Function Use and Operation
