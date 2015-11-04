@@ -19,12 +19,9 @@ Requirements
 
 This has been tested on Python 3.4 and requires the following packages:
 
-- 'numpy
-<http://sourceforge.net/projects/numpy/files/NumPy/>'_
-- 'scipy
-<http://sourceforge.net/projects/scipy/files/scipy/>'_
-- 'matplotlib
-<http://matplotlib.org/downloads.html>'_ (only needed for plotting)
+- `numpy <http://sourceforge.net/projects/numpy/files/NumPy/>`_
+- `scipy <http://sourceforge.net/projects/scipy/files/scipy/>`_
+- `matplotlib <http://matplotlib.org/downloads.html>`_ (only needed for plotting)
 
 
 Main Function Use and Operation
