@@ -1,21 +1,41 @@
 Introduction
-==========================
+============
 
 The purpose of this package is to provide an automated system for generating useful, usable data from dual channel spectrometer data.  It has been developed for the Unispec-DC data format, though only the :func:`~BasicProcessing.UnispecProcessing.ReadFiles` would need to be modified to import data in an alternative format.
 
 There are also project files here for Eclipse (with PyDev) which can be useful for debugging.
 
+There are two main components to the package:
+	BasicProcessing.py
+      Library with all data processing functions
+      
+	Main.py
+      Example script for processing data (described in detailed below)
 
-Main Function Operation and Use
-================================
 
-.. automodule:: Main
-    :members:
-	
+Requirements
+============
+
+This has been tested on Python 3.4 and requires the following packages:
+   - 'numpy <http://sourceforge.net/projects/numpy/files/NumPy/>'_
+   - 'scipy <http://sourceforge.net/projects/scipy/files/scipy/>'_
+   - 'matplotlib <http://matplotlib.org/downloads.html>'_ (only needed for plotting)
+
+
+Main Function Use and Operation
+===============================
+
+---
+Use
+---
+
+To process a set of data using Main.py, the configuration file "Config.txt" should be updated with the appropriate path and filename information and be saved in the same directory as BasicProcessing.py and Main.py.  Main.py can then be called directly with no arguments.  (From a command prompt "python main.py".)
+
+
 ---------------	
 Operation
----------------
-This main function reads in the configuration options, sets up some lists to pass information between functions and iterates through each run as a group.
+---------
+The main function reads in the configuration options, sets up some lists to pass information between functions and iterates through each run as a group.
 
 First, the object :obj:`Spec` is created from the :class:`~BasicProcessing.UnispecProcessing` class.  The Init function for the class also opens the config file specified and loads the values into class level variables.
 
@@ -126,9 +146,9 @@ Finally, the CSV output is generated.  The date and tiem from the first white pl
 
 
 
-----------------------
+------------------
 Configuration File
-----------------------
+------------------
 
 The configuration file is seperated into an Input and an Output section to help organize parameters, especially as future options are potentially added.
 
