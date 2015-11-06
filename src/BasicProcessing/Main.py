@@ -20,7 +20,9 @@ def main():
     """
 
     path = str(os.path.realpath('.'))
-    Spec = UnispecProcessing(path + r'\config.txt')
+    # Edited by SPS on 11/06/2015
+    #Spec = UnispecProcessing(path + r'\config.txt')
+    Spec = UnispecProcessing(os.path.join(path, "config.txt"))
     
     run_count, WP_count, stop_count = Spec.GetFileLists()
     

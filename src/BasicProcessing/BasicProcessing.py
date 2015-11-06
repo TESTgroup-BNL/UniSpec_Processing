@@ -15,7 +15,7 @@ from math import floor, ceil, log10
 import matplotlib.pyplot as plt
 
 
-
+# Hard-coded paths - TO BE REMOVED
 sys.path.append('C:\Python34')
 sys.path.append('C:\Python34\Lib')
 sys.path.append('C:\Python34\DLLs')
@@ -139,7 +139,9 @@ class UnispecProcessing:
         
         for i in range(0, len(flist)-1):
 #            Open File
-            sf = open(self.SourcePath + "\\" + flist[i], "Ur")
+#           *Edited by SPS on 11/06/2015
+#           sf = open(self.SourcePath + "\\" + flist[i], "Ur")
+            sf = open(os.path.join(self.SourcePath,flist[i]), "Ur")
             data = sf.readlines()
             
 #            Read Header
@@ -397,6 +399,10 @@ class UnispecProcessing:
         
         """
         
+        # Added by SPS 11/06/2015 to create output directory on-the-fly
+        if not os.path.exists(os.path.dirname(os.path.join(path,filename))):
+            os.makedirs(os.path.dirname(os.path.join(path,filename)))
+        
         if (os.path.isfile(path + '/' + filename) == True) :
             n = 0
             exists = True
@@ -410,8 +416,10 @@ class UnispecProcessing:
     
         print("Writing file: " + filename)    
         
-        fh = open(path + r'\\' + filename, "a")
-        
+        # *Edited by SPS 11/06/2015
+        #fh = open(path + r'\\' + filename, "a")
+        fh = open(os.path.join(path,filename), "a")
+
         #Write header
         fh.write("Stop," + ",".join(['%f' % num for num in data[0,0]])) #str(data[0,0])[2:-2].replace("  ", ",").replace(" ","").replace("\n",""))
        
