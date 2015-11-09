@@ -102,7 +102,8 @@ class UnispecProcessing:
         flist = os.listdir(self.SourcePath)
         flist.sort()
         for file in flist:
-            if file.endswith(".spu"):
+#            Edited by A McMahon on 11/9/15 - Added check for empty files
+            if file.endswith(".spu") and os.path.getsize(os.path.join(self.SourcePath,file)) > 0:
                 if file.endswith(self.WP_identifier + ".spu"):
                     if WP_break:
                         run += 1
@@ -134,10 +135,10 @@ class UnispecProcessing:
         :rtype: Nested list of Strings
         
         """
-
-        outdata = [[[None],[None]] for item in range(0, len(flist)-1)]
+#            Edited by A McMahon on 11/9/15 - Corrected range values
+        outdata = [[[None],[None]] for item in range(0, len(flist))]
         
-        for i in range(0, len(flist)-1):
+        for i in range(0, len(flist)):
 #            Open File
 #           *Edited by SPS on 11/06/2015
 #           sf = open(self.SourcePath + "\\" + flist[i], "Ur")
@@ -145,12 +146,18 @@ class UnispecProcessing:
             data = sf.readlines()
             
 #            Read Header
-            outdata[i][0] = data[0:headerlen - 1]
+            outdata[i][consts.header] = data[0:headerlen - 1]
             
 #            Read Spectra
-            outdata[i][1] = [[float(l) for l in line.split("\t")] for line in data[headerlen + 1:]]
+            outdata[i][consts.data] = [[float(l) for l in line.split("\t")] for line in data[headerlen + 1:]]
                       
             sf.close()
+            
+#            Remove invalid entries at the end of Chan B (last 8 values are system params, not spectra)
+#            Using "-1" prevents problems with different list lengths but ensures the data is out of the range interpolated so it is ignored
+            for d in outdata[i][consts.data][-8::1]:
+                d[0:2] = -1, -1
+            
         return outdata
 
         """            
@@ -312,9 +319,9 @@ class UnispecProcessing:
         
         """
         newdata = np.array(np.zeros_like(data[0]))
-        newdata[self.consts.int_WL] = data[0,0]
-        newdata[self.consts.int_CH_B] = np.average(data[:,1,:], axis=0)
-        newdata[self.consts.int_CH_A] = np.average(data[:,2,:], axis=0)
+        newdata[consts.int_WL] = data[0,0]
+        newdata[consts.int_CH_B] = np.average(data[:,1,:], axis=0)
+        newdata[consts.int_CH_A] = np.average(data[:,2,:], axis=0)
         return newdata
     
     
@@ -358,9 +365,10 @@ class UnispecProcessing:
         refl = np.array(np.zeros((len(Stop_data),2,len(Stop_data[0, 0]))))
 
         for s_idx, stop in enumerate(Stop_data):
-            refl[s_idx, 0] = stop[self.consts.int_WL]
+            refl[s_idx, 0] = stop[consts.int_WL]
             #Reflec = (I_up / I_WP) * (I_trg / I_up)
-            refl[s_idx, 1] = (stop[self.consts.int_CH_A] / WP_data[self.consts.int_CH_B]) * (stop[self.consts.int_CH_B] / stop[self.consts.int_CH_A])
+            # Edited by A. McMahon 11/9/15 - Channels A and B swapped
+            refl[s_idx, 1] = (stop[consts.int_CH_B] / WP_data[consts.int_CH_A]) * (stop[consts.int_CH_A] / stop[consts.int_CH_B])
         
         return refl
     
@@ -403,7 +411,7 @@ class UnispecProcessing:
         if not os.path.exists(os.path.dirname(os.path.join(path,filename))):
             os.makedirs(os.path.dirname(os.path.join(path,filename)))
         
-        if (os.path.isfile(path + '/' + filename) == True) :
+        if (os.path.isfile(os.path.join(path,filename)) == True) :
             n = 0
             exists = True
             while (exists) :
@@ -412,7 +420,7 @@ class UnispecProcessing:
                     filename = filename[:len(filename) - 6] + "_" + str(n) + filename[-4:]
                 else:
                     filename = filename[:len(filename) - 4] + "_" + str(n) + filename[-4:]
-                exists = os.path.isfile(path + '/' + filename)
+                exists = os.path.isfile(os.path.join(path,filename))
     
         print("Writing file: " + filename)    
         
@@ -424,7 +432,7 @@ class UnispecProcessing:
         fh.write("Stop," + ",".join(['%f' % num for num in data[0,0]])) #str(data[0,0])[2:-2].replace("  ", ",").replace(" ","").replace("\n",""))
        
         for s_idx, stop in enumerate(data):
-            fh.write("\n" + str(s_idx) + "," + ",".join(['%f' % num for num in stop[1]])) #str(stop[1])[2:-2].replace("  ", ",").replace(" ","").replace("\n",""))
+            fh.write("\n" + str(s_idx+1) + "," + ",".join(['%f' % num for num in stop[1]])) #str(stop[1])[2:-2].replace("  ", ",").replace(" ","").replace("\n",""))
         
         fh.flush()
         fh.close()
