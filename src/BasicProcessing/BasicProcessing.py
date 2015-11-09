@@ -312,9 +312,9 @@ class UnispecProcessing:
         
         """
         newdata = np.array(np.zeros_like(data[0]))
-        newdata[0] = data[0,0]
-        newdata[1] = np.average(data[:,1,:], axis=0)
-        newdata[2] = np.average(data[:,2,:], axis=0)
+        newdata[self.consts.int_WL] = data[0,0]
+        newdata[self.consts.int_CH_B] = np.average(data[:,1,:], axis=0)
+        newdata[self.consts.int_CH_A] = np.average(data[:,2,:], axis=0)
         return newdata
     
     
@@ -358,9 +358,9 @@ class UnispecProcessing:
         refl = np.array(np.zeros((len(Stop_data),2,len(Stop_data[0, 0]))))
 
         for s_idx, stop in enumerate(Stop_data):
-            refl[s_idx, 0] = stop[0]
+            refl[s_idx, 0] = stop[self.consts.int_WL]
             #Reflec = (I_up / I_WP) * (I_trg / I_up)
-            refl[s_idx, 1] = (stop[2] / WP_data[1]) * (stop[1] / stop[2])
+            refl[s_idx, 1] = (stop[self.consts.int_CH_A] / WP_data[self.consts.int_CH_B]) * (stop[self.consts.int_CH_B] / stop[self.consts.int_CH_A])
         
         return refl
     
