@@ -21,10 +21,10 @@ closeAllConnections()   # close any open connections to files
 
 #--------------------------------------------------------------------------------------------------#
 ### Input data directory
-in.dir <- '~/Data/Projects/NGEE-Arctic/Tram_Spectra/20150715_processed/'
+in.dir <- '~/Data/Projects/NGEE-Arctic/Tram_Spectra/20150727_processed/'
 Project <- 'NGEE-Arctic'
-Date <- '2015-07-15'
-run <- '02_00_04'
+Date <- '2015-07-27'
+run <- '02_00_00'
 spectra <- read.table(paste0(in.dir,Project,'_',Date,'__', run,'.csv'), header=FALSE,
                       skip=1,sep=",")
 spectra[1:5,1:10]
@@ -49,7 +49,7 @@ spectra.sub <- droplevels(spectra[,inBands])
 spec.info <- spectra[,1]
 
 waves <- seq(Start.wave,End.wave,1)
-plot(waves,spectra.sub[1,], type="l", col="black", lwd=3,ylim=c(0,0.5))
+plot(waves,spectra.sub[1,], type="l", col="black", lwd=3,ylim=c(0,0.4))
 lines(waves,spectra.sub[spec.info==15,])
 lines(waves,spectra.sub[spec.info==30,])
 lines(waves,spectra.sub[spec.info==50,])
@@ -73,10 +73,10 @@ reflCV <- (sd.refl/mn.refl)*100
 
 cexaxis <- 1.5
 cexlab <- 1.7
-ylim <- 0.70
+ylim <- range(spectra.sub)
 png(paste0(out.dir,'/',Project,'_',Date,'__',run,'_Spec_Summary.png'),width=2900, height =4000,res=400)
 par(mfrow=c(2,1), mar=c(4.5,4.5,1.2,1.3), oma=c(0.1,0.1,0.1,0.1)) # B L T R
-plot(waves,mn.refl,xlim=range(waves),ylim=c(0.01,ylim),cex=0.00001, col="white",xlab="",ylab="Reflectance (%)",
+plot(waves,mn.refl,xlim=range(waves),ylim=ylim,cex=0.00001, col="white",xlab="",ylab="Reflectance (%)",
      cex.axis=cexaxis, cex.lab=cexlab)
 polygon(c(waves ,rev(waves)),c(max.refl, rev(min.refl)),col="#99CC99",border=NA)
 lines(waves,mn.refl,lwd=4)
