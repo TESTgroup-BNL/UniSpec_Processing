@@ -1,8 +1,0 @@
-[Input]
-SourcePath = D:\Users\Andrew\Documents\BNL\TEST\Unispec_Processing\example_data\2015
-WP_Identifier = 000
-HeaderLines = 10
-
-[Output]
-OutputPath = D:\Users\Andrew\Documents\BNL\TEST\Unispec_Processing\example_results\2015
-OutputPrefix = example_

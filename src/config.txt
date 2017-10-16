@@ -1,0 +1,14 @@
+[Input]
+SourcePath = C:\Users\amcmahon\Google Drive\BNL\Github\UniSpec_Processing\example_data\20150625
+WP_Identifier = 000
+HeaderLines = 11
+
+[DarkCurrent]
+SourcePath = .\src\Dark10.spu
+HeaderLines = 10
+NewFormat = False
+SwapChannels = True
+
+[Output]
+OutputPath = C:\Users\amcmahon\Google Drive\BNL\Github\UniSpec_Processing\test_results\20150625_processed
+OutputPrefix = example_
