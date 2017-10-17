@@ -1,3 +1,3 @@
 - Add channel swap option for WP/stop measurments
 - Update docs
-- Longer term: tranisition to more object-oriented approach (create class for spectra containg data, properties, functions, etc)
+- Longer term: transition to more object-oriented approach (create class for spectra containing data, properties, functions, etc)
